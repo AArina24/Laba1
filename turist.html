@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>TravelBloom - Розовый гид</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Quicksand', system-ui, -apple-system, 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #fff0f5 0%, #ffe4ed 100%);
+            color: #7a4b5c;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 245, 250, 0.75);
+            border-radius: 3rem;
+            padding: 2rem 1.5rem;
+            box-shadow: 0 20px 40px rgba(255, 105, 180, 0.15);
+            backdrop-filter: blur(2px);
+        }
+
+        h1, h2, h3 {
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+
+        h1 {
+            font-size: 2.3rem;
+            background: linear-gradient(135deg, #e84393, #ff7eb3);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 5px rgba(255, 192, 203, 0.5);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            border-left: 6px solid #ff99cc;
+            padding-left: 1rem;
+            margin: 1.8rem 0 1rem 0;
+            color: #ba2c73;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: #c94f7c;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.8rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: #ffffffdd;
+            backdrop-filter: blur(4px);
+            background: #fff9fc;
+            border-radius: 2rem;
+            padding: 1.2rem;
+            box-shadow: 0 10px 20px rgba(255, 80, 120, 0.1);
+            transition: all 0.25s ease;
+            border: 1px solid #ffe0f0;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 30px rgba(255, 105, 180, 0.2);
+            border-color: #ffbfd5;
+        }
+
+        canvas {
+            max-height: 250px;
+            width: 100% !important;
+            margin-top: 0.5rem;
+        }
+
+        .calculator-wrapper {
+            background: #ffeef4;
+            border-radius: 2rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #ffbfd5;
+        }
+
+        .calc-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+            align-items: flex-end;
+        }
+
+        .calc-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .calc-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            color: #c94f7c;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            border-radius: 2rem;
+            border: 1px solid #ffc0d9;
+            background: white;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        select:focus, input:focus {
+            border-color: #ff6699;
+            box-shadow: 0 0 0 3px rgba(255, 102, 153, 0.2);
+        }
+
+        button {
+            background: #ff85b3;
+            border: none;
+            color: white;
+            padding: 0.7rem 1.6rem;
+            border-radius: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 1rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+
+        button:hover {
+            background: #e84393;
+            transform: scale(0.97);
+        }
+
+        .price-result {
+            background: #ffdae9;
+            margin-top: 1.2rem;
+            padding: 1rem;
+            border-radius: 2rem;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.4rem;
+            color: #b13e6b;
+        }
+
+        .map-container {
+            background: #fff0f5;
+            border-radius: 2rem;
+            padding: 1.2rem;
+            margin: 1.8rem 0;
+            text-align: center;
+            border: 2px solid #ffbfd5;
+            position: relative;
+        }
+        svg {
+            width: 100%;
+            max-width: 900px;
+            height: auto;
+            border-radius: 1.5rem;
+            background: #fff9f5;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            cursor: pointer;
+        }
+
+        .tooltip-text {
+            background: #ffb7c7;
+            color: #5c2e3f;
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-top: 0.5rem;
+        }
+
+        /* Стили для карточки достопримечательности */
+        .landmark-card {
+            position: absolute;
+            background: linear-gradient(135deg, #fff5f8, #ffffff);
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 35px rgba(233, 30, 99, 0.25);
+            width: 260px;
+            padding: 1rem;
+            border: 2px solid #ff99cc;
+            backdrop-filter: blur(12px);
+            z-index: 200;
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            animation: cardPop 0.3s ease-out;
+            pointer-events: auto;
+        }
+        @keyframes cardPop {
+            0% { opacity: 0; transform: scale(0.8) translateY(10px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .landmark-card img {
+            width: 100%;
+            height: 130px;
+            object-fit: cover;
+            border-radius: 1rem;
+            margin-bottom: 0.6rem;
+            background: #ffe0f0;
+        }
+        .landmark-card h4 {
+            color: #c2185b;
+            font-size: 1.2rem;
+            margin-bottom: 0.3rem;
+        }
+        .landmark-card p {
+            font-size: 0.8rem;
+            color: #ad5d7e;
+            line-height: 1.3;
+        }
+        .close-card {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            background: #ffccdd;
+            border: none;
+            border-radius: 20px;
+            width: 24px;
+            height: 24px;
+            font-size: 14px;
+            cursor: pointer;
+            color: #b3416b;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+        .close-card:hover {
+            background: #ff99bb;
+            color: white;
+        }
+        .card-placeholder-img {
+            background: #ffdbeb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 720px) {
+            .container {
+                padding: 1rem;
+            }
+            .calc-form {
+                flex-direction: column;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+            .landmark-card {
+                width: 220px;
+                padding: 0.8rem;
+            }
+            .landmark-card img {
+                height: 100px;
+            }
+        }
+
+        .badge-stats {
+            font-size: 0.75rem;
+            text-align: right;
+            color: #e291b0;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <h1>✈️ TravelBloom · розовое агентство</h1>
+    <p style="margin-bottom: 1.2rem;">Визуализируй путешествия, рассчитывай туры и исследуй анимированную карту</p>
+
+    <h2>📊 Интерактивные диаграммы</h2>
+    <div class="charts-grid">
+        <div class="card">
+            <h3>💰 Средние цены туров</h3>
+            <canvas id="priceChart" width="400" height="250"></canvas>
+            <div class="badge-stats">€ на человека</div>
+        </div>
+        <div class="card">
+            <h3>🔥 Популярность направлений</h3>
+            <canvas id="popularityChart" width="400" height="250"></canvas>
+        </div>
+        <div class="card">
+            <h3>⭐ Рейтинг стран (max 10)</h3>
+            <canvas id="ratingChart" width="400" height="250"></canvas>
+        </div>
+        <div class="card">
+            <h3>🌤️ Сезонность спроса (%)</h3>
+            <canvas id="seasonChart" width="400" height="250"></canvas>
+        </div>
+    </div>
+
+    <h2>🧮 Калькулятор путешествия</h2>
+    <div class="calculator-wrapper">
+        <div class="calc-form">
+            <div class="calc-group">
+                <label>🏝️ Направление</label>
+                <select id="destinationSelect">
+                    <option value="paris">Париж, Франция</option>
+                    <option value="tokyo">Токио, Япония</option>
+                    <option value="ny">Нью-Йорк, США</option>
+                    <option value="dubai">Дубай, ОАЭ</option>
+                    <option value="rome">Рим, Италия</option>
+                </select>
+            </div>
+            <div class="calc-group">
+                <label>👥 Количество туристов</label>
+                <input type="number" id="touristsCount" value="2" min="1" max="20">
+            </div>
+            <div class="calc-group">
+                <label>🏨 Отель (за ночь/чел)</label>
+                <select id="hotelSelect">
+                    <option value="0">Без отеля</option>
+                    <option value="45">Эконом (45€)</option>
+                    <option value="85">Стандарт (85€)</option>
+                    <option value="150">Люкс (150€)</option>
+                </select>
+            </div>
+            <div class="calc-group">
+                <label>🚗 Аренда авто (дней)</label>
+                <input type="number" id="carRentDays" value="0" min="0" max="30" step="1">
+            </div>
+            <div class="calc-group">
+                <label>⏱️ Длительность тура (дни)</label>
+                <input type="number" id="tourDays" value="5" min="1" max="21">
+            </div>
+            <button id="calcBtn">✨ Рассчитать стоимость</button>
+        </div>
+        <div class="price-result" id="totalPriceDisplay">💰 Итоговая стоимость: 0 €</div>
+    </div>
+
+    <!-- Анимированная карта с карточками по клику -->
+    <h2>🗺️ Анимированная карта направлений (кликни по точке!)</h2>
+    <div class="map-container" id="mapContainer">
+        <svg viewBox="0 0 900 500" xmlns="http://www.w3.org/2000/svg" id="interactiveMap">
+            <defs>
+                <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#ff99cc" stop-opacity="0.8"/>
+                    <stop offset="100%" stop-color="#ff99cc" stop-opacity="0"/>
+                </radialGradient>
+                <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="2" dy="3" stdDeviation="3" flood-color="#ff69b4" flood-opacity="0.4"/>
+                </filter>
+            </defs>
+            <rect width="900" height="500" fill="#fff5fa" rx="20" ry="20" stroke="#ffb7c7" stroke-width="2"/>
+            <path d="M120,180 L220,120 L340,140 L400,200 L320,280 L180,260 L120,180Z" fill="#ffdfed" stroke="#ff88ae" stroke-width="1.5" stroke-dasharray="4 3"/>
+            <path d="M520,150 L640,110 L740,150 L720,250 L600,280 L500,230 L520,150Z" fill="#ffe0f0" stroke="#ff99bb" stroke-width="1.5"/>
+            <path d="M400,300 L520,340 L620,400 L500,440 L380,390 L400,300Z" fill="#ffd6e8" stroke="#ffa5c2" stroke-width="1.5"/>
+
+            <!-- Точки с данными о достопримечательностях (кликабельные) -->
+            <g id="paris-point" class="landmark" data-name="Эйфелева башня" data-city="Париж" data-desc="Символ Франции, высота 330 м. Романтический вид на город." data-img-emoji="🗼" data-img-placeholder="🗼 Эйфелева башня">
+                <circle cx="180" cy="200" r="14" fill="#ff69b4" stroke="white" stroke-width="2.5" filter="url(#shadow)" style="cursor:pointer;">
+                    <animate attributeName="r" values="12;17;12" dur="2s" repeatCount="indefinite" />
+                    <animate attributeName="fill" values="#ff69b4;#ff9bc1;#ff69b4" dur="3s" repeatCount="indefinite" />
+                </circle>
+                <text x="160" y="185" font-size="10" fill="#a13e63" font-weight="bold">Париж</text>
+                <title>Кликни, чтобы увидеть карточку достопримечательности</title>
+            </g>
+
+            <g id="rome-point" class="landmark" data-name="Колизей" data-city="Рим" data-desc="Древний амфитеатр, построен в 80 году н.э., вмещал до 50 000 зрителей." data-img-emoji="🏛️" data-img-placeholder="🏛️ Колизей">
+                <circle cx="240" cy="220" r="12" fill="#ff80b3" stroke="white" stroke-width="2.5" style="cursor:pointer;">
+                    <animate attributeName="r" values="10;14;10" dur="2.3s" repeatCount="indefinite" />
+                </circle>
+                <text x="215" y="208" font-size="10" fill="#a13e63">Рим</text>
+                <title>Кликни, чтобы увидеть карточку достопримечательности</title>
+            </g>
+
+            <g id="tokyo-point" class="landmark" data-name="Токийская башня & храм Сэнсодзи" data-city="Токио" data-desc="Сочетание футуристических небоскрёбов и древних храмов. Впечатляющий вид на город." data-img-emoji="🗼🎌" data-img-placeholder="🗼🗾 Токио">
+                <circle cx="640" cy="180" r="13" fill="#ff88ae" stroke="white" stroke-width="2.5" style="cursor:pointer;">
+                    <animate attributeName="r" values="10;15;10" dur="2.5s" repeatCount="indefinite" />
+                </circle>
+                <text x="615" y="165" font-size="10" fill="#a13e63">Токио</text>
+                <title>Кликни, чтобы увидеть карточку достопримечательности</title>
+            </g>
+
+            <g id="dubai-point" class="landmark" data-name="Бурдж-Халифа" data-city="Дубай" data-desc="Самое высокое здание в мире (828 м), смотровая площадка на 148 этаже." data-img-emoji="🏙️✨" data-img-placeholder="🏙️ Бурдж-Халифа">
+                <circle cx="460" cy="360" r="12" fill="#ff70a9" stroke="white" stroke-width="2.5" style="cursor:pointer;">
+                    <animate attributeName="r" values="10;14;10" dur="2.8s" repeatCount="indefinite" />
+                </circle>
+                <text x="435" y="347" font-size="10" fill="#a13e63">Дубай</text>
+                <title>Кликни, чтобы увидеть карточку достопримечательности</title>
+            </g>
+
+            <!-- Маршруты -->
+            <path d="M180,200 L240,220" stroke="#ffb3cc" stroke-width="3" stroke-dasharray="5 5" opacity="0.7">
+                <animate attributeName="stroke-dashoffset" values="0;20" dur="1s" repeatCount="indefinite" />
+            </path>
+            <path d="M460,360 L640,180" stroke="#ffb0c7" stroke-width="3" stroke-dasharray="6 4" opacity="0.7">
+                <animate attributeName="stroke-dashoffset" values="0;-20" dur="1.2s" repeatCount="indefinite" />
+            </path>
+
+            <circle cx="400" cy="260" r="4" fill="#ff4d88">
+                <animate attributeName="r" values="4;18;4" dur="3s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.9;0.1;0.9" dur="3s" repeatCount="indefinite" />
+            </circle>
+            <text x="385" y="255" font-size="9" fill="#ba2c73" font-weight="bold">✈️ маршрут</text>
+        </svg>
+        <p class="tooltip-text">✨ КЛИКНИ на любую розовую точку — появится карточка с достопримечательностью! ✨</p>
+    </div>
+    <footer>Данные сохраняются в localStorage • Карточки появляются по клику на карте (адаптивно)</footer>
+</div>
+
+<script>
+    // Данные для калькулятора и диаграмм
+    const destinationsData = {
+        labels: ['Париж', 'Токио', 'Нью-Йорк', 'Дубай', 'Рим', 'Бангкок'],
+        prices: [850, 1200, 1100, 980, 790, 650],
+        popularity: [92, 88, 85, 78, 89, 94],
+        ratings: [9.2, 9.5, 8.9, 8.7, 9.1, 9.0],
+        seasons: ['Весна', 'Лето', 'Осень', 'Зима'],
+        seasonPercent: [32, 28, 18, 22]
+    };
+
+    const tourBasePrices = {
+        paris: 690,
+        tokyo: 1150,
+        ny: 1040,
+        dubai: 860,
+        rome: 620
+    };
+
+    let priceChart, popularityChart, ratingChart, seasonChart;
+
+    function initCharts() {
+        const ctxPrice = document.getElementById('priceChart').getContext('2d');
+        const ctxPop = document.getElementById('popularityChart').getContext('2d');
+        const ctxRating = document.getElementById('ratingChart').getContext('2d');
+        const ctxSeason = document.getElementById('seasonChart').getContext('2d');
+
+        priceChart = new Chart(ctxPrice, {
+            type: 'bar',
+            data: {
+                labels: destinationsData.labels,
+                datasets: [{ label: 'Цена тура (€)', data: destinationsData.prices, backgroundColor: '#ff99cc', borderRadius: 12, borderColor: '#ff6f9f', borderWidth: 1 }]
+            },
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'top' } } }
+        });
+        popularityChart = new Chart(ctxPop, {
+            type: 'line',
+            data: {
+                labels: destinationsData.labels,
+                datasets: [{ label: 'Популярность (%)', data: destinationsData.popularity, borderColor: '#ff66a3', backgroundColor: 'rgba(255,105,180,0.1)', tension: 0.3, fill: true, pointBackgroundColor: '#e84393' }]
+            },
+            options: { responsive: true }
+        });
+        ratingChart = new Chart(ctxRating, {
+            type: 'radar',
+            data: {
+                labels: destinationsData.labels,
+                datasets: [{ label: 'Рейтинг (1-10)', data: destinationsData.ratings, backgroundColor: 'rgba(255,150,200,0.3)', borderColor: '#ff6699', pointBackgroundColor: '#ff80b3' }]
+            },
+            options: { responsive: true, scales: { r: { beginAtZero: true, max: 10 } } }
+        });
+        seasonChart = new Chart(ctxSeason, {
+            type: 'pie',
+            data: {
+                labels: destinationsData.seasons,
+                datasets: [{ data: destinationsData.seasonPercent, backgroundColor: ['#ffb3d1', '#ff99cc', '#ff7eb3', '#ff66a3'], borderWidth: 0 }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+    }
+
+    // Калькулятор
+    function calculateTour() {
+        const destination = document.getElementById('destinationSelect').value;
+        const tourists = parseInt(document.getElementById('touristsCount').value) || 1;
+        const hotelPricePerNight = parseInt(document.getElementById('hotelSelect').value) || 0;
+        const carRentDays = parseInt(document.getElementById('carRentDays').value) || 0;
+        const tourDays = parseInt(document.getElementById('tourDays').value) || 1;
+        
+        let baseTourCost = tourBasePrices[destination] || 700;
+        const defaultPackageDays = 5;
+        let extraDays = tourDays - defaultPackageDays;
+        if (extraDays < 0) extraDays = 0;
+        let extraCostPerPerson = extraDays * 70;
+        let totalTourBase = (baseTourCost + extraCostPerPerson) * tourists;
+        let totalHotel = hotelPricePerNight * tourists * tourDays;
+        let totalCar = carRentDays * 45;
+        let total = totalTourBase + totalHotel + totalCar;
+        
+        const calcData = {
+            destination, tourists, hotelPricePerNight, carRentDays, tourDays,
+            total, timestamp: new Date().toISOString()
+        };
+        localStorage.setItem('lastTravelCalc', JSON.stringify(calcData));
+        document.cookie = `lastDestination=${destination}; max-age=86400; path=/`;
+        document.getElementById('totalPriceDisplay').innerHTML = `💰 Итоговая стоимость: ${total.toFixed(2)} €`;
+    }
+    
+    function loadLastCalculation() {
+        const saved = localStorage.getItem('lastTravelCalc');
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                if (data.destination) document.getElementById('destinationSelect').value = data.destination;
+                if (data.tourists) document.getElementById('touristsCount').value = data.tourists;
+                if (data.hotelPricePerNight) document.getElementById('hotelSelect').value = data.hotelPricePerNight;
+                if (data.carRentDays) document.getElementById('carRentDays').value = data.carRentDays;
+                if (data.tourDays) document.getElementById('tourDays').value = data.tourDays;
+                if (data.total) document.getElementById('totalPriceDisplay').innerHTML = `💰 Итоговая стоимость: ${data.total.toFixed(2)} €`;
+                else calculateTour();
+            } catch(e) {}
+        } else {
+            calculateTour();
+        }
+    }
+
+    // ----- ФУНКЦИЯ ДЛЯ КАРТОЧЕК ПРИ КЛИКЕ -----
+    let activeCard = null;
+
+    const landmarkImages = {
+        'paris-point': { 
+            imgSrc: null,
+            fallbackEmoji: '🗼',
+            title: 'Эйфелева башня',
+            city: 'Париж',
+            desc: 'Символ Франции, высота 330 м. Романтичный вид на город. Лучшее место для заката.'
+        },
+        'rome-point': {
+            imgSrc: null,
+            fallbackEmoji: '🏛️',
+            title: 'Колизей',
+            city: 'Рим',
+            desc: 'Древний амфитеатр, построен в 80 году н.э., вмещал до 50 000 зрителей. Одно из семи чудес света.'
+        },
+        'tokyo-point': {
+            imgSrc: null,
+            fallbackEmoji: '🗼🎌',
+            title: 'Токийская башня & Асакуса',
+            city: 'Токио',
+            desc: 'Сочетание футуристических небоскрёбов и древних храмов. Обязательно посетите храм Сэнсодзи.'
+        },
+        'dubai-point': {
+            imgSrc: null,
+            fallbackEmoji: '🏙️✨',
+            title: 'Бурдж-Халифа',
+            city: 'Дубай',
+            desc: 'Самое высокое здание в мире (828 м), смотровая площадка на 148 этаже и фонтаны у подножия.'
+        }
+    };
+
+    function createLandmarkCard(landmarkId, circleElement, svgElement, mapContainer) {
+        // Удаляем предыдущую карточку, если есть
+        if (activeCard && activeCard.parentNode) activeCard.remove();
+        
+        const data = landmarkImages[landmarkId];
+        if (!data) return;
+        
+        // Получаем координаты мыши или центра круга для позиционирования
+        const point = circleElement.getBoundingClientRect();
+        const containerRect = mapContainer.getBoundingClientRect();
+        // Рассчитываем позицию относительно контейнера карты
+        let left = point.left - containerRect.left + 20;
+        let top = point.top - containerRect.top - 120;
+        
+        // Корректировка, чтобы карточка не выходила за пределы
+        if (top < 10) top = point.top - containerRect.top + 30;
+        if (left + 260 > containerRect.width) left = containerRect.width - 280;
+        if (left < 10) left = 10;
+        
+        const card = document.createElement('div');
+        card.className = 'landmark-card';
+        card.style.left = `${left}px`;
+        card.style.top = `${top}px`;
+        
+        // Содержимое карточки
+        let imageHtml = '';
+        if (data.imgSrc && data.imgSrc.length > 0) {
+            imageHtml = `<img src="${data.imgSrc}" alt="${data.title}" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'card-placeholder-img\' style=\'height:130px; background:#ffdbeb; font-size:3rem;\'>${data.fallbackEmoji}</div>';">`;
+        } else {
+            imageHtml = `<div class="card-placeholder-img" style="height:130px; background:linear-gradient(145deg, #ffd9e8, #ffc0d9); display:flex; align-items:center; justify-content:center; font-size:3.8rem; border-radius:1rem;">${data.fallbackEmoji}</div>`;
+        }
+        
+        card.innerHTML = `
+            <button class="close-card">✕</button>
+            ${imageHtml}
+            <h4>${data.title} • ${data.city}</h4>
+            <p>${data.desc}</p>
+            <small style="color:#ff6699;">🌸 кликните чтобы закрыть</small>
+        `;
+        
+        mapContainer.appendChild(card);
+        activeCard = card;
+        
+        // Закрытие карточки по кнопке
+        card.querySelector('.close-card').addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (activeCard) activeCard.remove();
+            activeCard = null;
+        });
+        
+        // Закрытие при клике вне карточки (документ)
+        const closeOnOutside = (e) => {
+            if (activeCard && !activeCard.contains(e.target) && !circleElement.contains(e.target)) {
+                activeCard.remove();
+                activeCard = null;
+                document.removeEventListener('click', closeOnOutside);
+            }
+        };
+        setTimeout(() => document.addEventListener('click', closeOnOutside), 100);
+    }
+
+    // Инициализация кликов по точкам карты
+    function initMapCardClicks() {
+        const mapSvg = document.getElementById('interactiveMap');
+        const mapContainer = document.getElementById('mapContainer');
+        const points = document.querySelectorAll('.landmark');
+        
+        points.forEach(point => {
+            const circle = point.querySelector('circle');
+            if (!circle) return;
+            const pointId = point.id;
+            // Добавляем обработчик клика
+            circle.addEventListener('click', (event) => {
+                event.stopPropagation();
+                createLandmarkCard(pointId, circle, mapSvg, mapContainer);
+            });
+            // меняем курсор
+            circle.style.cursor = 'pointer';
+        });
+    }
+    
+    // Анимация наведения (только визуал, не мешает)
+    function initMapHoverEffects() {
+        const circles = document.querySelectorAll('.landmark circle');
+        circles.forEach(circle => {
+            circle.addEventListener('mouseenter', function(e) {
+                this.setAttribute('stroke', '#ffd966');
+                this.setAttribute('stroke-width', '3.5');
+            });
+            circle.addEventListener('mouseleave', function(e) {
+                this.setAttribute('stroke', 'white');
+                this.setAttribute('stroke-width', '2.5');
+            });
+        });
+    }
+    
+    window.addEventListener('resize', () => {
+        if(priceChart) priceChart.resize();
+        if(popularityChart) popularityChart.resize();
+        if(ratingChart) ratingChart.resize();
+        if(seasonChart) seasonChart.resize();
+        if(activeCard) activeCard.remove();
+        activeCard = null;
+    });
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        initCharts();
+        loadLastCalculation();
+        initMapCardClicks();    // главное: клик - карточка
+        initMapHoverEffects();  // просто подсветка
+        
+        const calcBtn = document.getElementById('calcBtn');
+        if (calcBtn) calcBtn.addEventListener('click', calculateTour);
+    });
+</script>
+</body>
+</html>
